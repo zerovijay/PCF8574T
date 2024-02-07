@@ -1,7 +1,7 @@
 import utime
 from machine import I2C, Pin
 
-from MicroPython_PCF8574T import GpioExpander
+from PCF8574T import GpioExpander
 
 LED_PIN: int = 0
 

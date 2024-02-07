@@ -1,6 +1,6 @@
 from machine import I2C, Pin
 
-from MicroPython_PCF8574T import GpioExpander
+from PCF8574T import GpioExpander
 
 LED_PIN: int = 0  # LED pin
 SWITCH: int = 1  # push button pin

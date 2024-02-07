@@ -8,8 +8,10 @@
 
 ## Overview
 
-The `GpioExpander` class streamlines GPIO pin management using the NXP PCF8574T I/O expander through I2C in MicroPython,
-simplifying pin mode configuration, digital value writing to output pins, and reading digital values from input pins.
+The PCF8574/74A MicroPython Library simplifies the process of expanding input and output capabilities via the I2C
+interface. It provides an intuitive solution for extending the number of GPIO pins available in MicroPython projects,
+making it easier to manage GPIO pins for various applications. With its user-friendly interface and robust
+functionality, this library is suitable for a wide range of projects requiring additional I/O expansion.
 
 ## Installation
 
@@ -25,7 +27,7 @@ simplifying pin mode configuration, digital value writing to output pins, and re
 
 ```python
 from machine import I2C, Pin
-from MicroPython_PCF8574T import GpioExpander
+from PCF8574T import GpioExpander
 
 # Customize I2C configuration, Don't forget to set frequency 100000kHz.
 i2c = I2C(0, scl=Pin(1), sda=Pin(0), freq=100000)
@@ -37,18 +39,18 @@ expander = GpioExpander(port=i2c, addr=0x27)
 ### Pin Configuration
 
 ```python
-# Set pin mode (INPUT or OUTPUT)
+# Set pin mode (INPUT)
 expander.pin_mode(pin_num=2, mode=expander.INPUT)
 
-# Set pin mode (INPUT or OUTPUT)
+# Set pin mode (OUTPUT)
 expander.pin_mode(pin_num=5, mode=expander.OUTPUT)
 ```
 
 ### Digital Write
 
 ```python
-# Write digital value (0 or 1) or (True or False) to the output pin
-expander.digital_write(pin_num=5, value=1)
+# Write digital value
+expander.digital_write(pin_num=5, value=True)
 ```
 
 ### Digital Read
@@ -58,14 +60,15 @@ expander.digital_write(pin_num=5, value=1)
 value = expander.digital_read(pin_num=2)
 ```
 
+For more examples, see the [Examples directory](example).
+
 ## Important Notes
 
-- Specifically designed for the NXP PCF8574T I/O expander.
+- The NXP [PCF8574/74A](docs/PCF8574_PCF8574A.pdf) and [Texas Instrument PCF8574](docs/pcf8574.pdf) are functionally the
+  same, but have a different slave address.
 - Ensure a valid I2C object for communication.
-- Valid I2C addresses for the PCF8574T range from 0x20 to 0x27.
-- Pin numbering is from 0 to 7. Macro: `PIN_MIN`, `PIN_MAX`
-- If you have another version of the PCF8574 GpioExpander, please add the address into the constant `__VALID_ADDR` in
-  source code.
+- Macro: `PIN_MIN` and `PIN_MAX` Pin numbering from 0 to 7.
+- Macro: `INPUT` and `OUTPUT` representing pin modes.
 - Robust exception handling implemented for potential I2C communication errors.
 
 ## Contribution
@@ -73,7 +76,7 @@ value = expander.digital_read(pin_num=2)
 Contributions to the GpioExpander Library are highly appreciated. If you encounter any issues or have suggestions for
 improvements, please create an issue or submit a pull request.
 
-இந்த GpioExpander மென்பொருள் நூலகத்திற்கான பங்களிப்புகள் மிகவும் ஊக்குவிக்கப்படுகின்றன! உங்களுக்கு ஏதேனும் சிக்கல்கள்
+இந்த PCF8574T மென்பொருள் நூலகத்திற்கான பங்களிப்புகள் மிகவும் ஊக்குவிக்கப்படுகின்றன! உங்களுக்கு ஏதேனும் சிக்கல்கள்
 ஏற்பட்டாலோ அல்லது மேம்பாடுகளுக்கான பரிந்துரைகள் இருந்தாலோ, தயவுசெய்து 'சிக்கல்' ஒன்றை உருவாக்கவும் அல்லது இழுக்கும்
 கோரிக்கையைச் சமர்ப்பிக்கவும்.
 
