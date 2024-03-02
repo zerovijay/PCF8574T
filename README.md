@@ -27,13 +27,13 @@ functionality, this library is suitable for a wide range of projects requiring a
 
 ```python
 from machine import I2C, Pin
-from PCF8574T import PCF8574
+from PCF8574T import PCF8574T
 
 # Customize I2C configuration, Don't forget to set frequency 100000kHz.
 i2c = I2C(0, scl=Pin(1), sda=Pin(0), freq=100000)
 
 # Initialize the MicroPython_PCF8574T instance
-expander = PCF8574(port=i2c, addr=0x27)
+expander = PCF8574T(port=i2c, addr=0x27)
 ```
 
 ### Pin Configuration
