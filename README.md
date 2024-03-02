@@ -27,7 +27,7 @@ functionality, this library is suitable for a wide range of projects requiring a
 
 ```python
 from machine import I2C, Pin
-from PCF8574X import PCF8574
+from PCF8574T import PCF8574
 
 # Customize I2C configuration, Don't forget to set frequency 100000kHz.
 i2c = I2C(0, scl=Pin(1), sda=Pin(0), freq=100000)

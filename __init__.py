@@ -1,1 +1,1 @@
-from .src.PCF8574 import PCF8574
+from .src.PCF8574T import PCF8574T

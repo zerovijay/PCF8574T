@@ -3,13 +3,13 @@ from machine import I2C
 from micropython import const
 
 
-class PCF8574:
+class PCF8574T:
     # Constants (MACRO) representing pin modes and pin range.
+    DEFAULT_ADDR: int = const(0x20)
     PIN_MIN, PIN_MAX = const((0, 7))
-    PCF8574_DEFAULT_ADDR: int = const(0x20)
     INPUT, INPUT_PULLUP, OUTPUT, OUTPUT_PULLUP = const((1, 1, 0, 1))  # Pin modes.
 
-    def __init__(self, port: I2C, addr: int = 0x27) -> None:
+    def __init__(self, port: I2C, addr: int = DEFAULT_ADDR) -> None:
         """
         Initialize the PCF8574 instance.
 
