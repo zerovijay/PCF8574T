@@ -27,13 +27,13 @@ functionality, this library is suitable for a wide range of projects requiring a
 
 ```python
 from machine import I2C, Pin
-from PCF8574T import GpioExpander
+from PCF8574X import PCF8574
 
 # Customize I2C configuration, Don't forget to set frequency 100000kHz.
 i2c = I2C(0, scl=Pin(1), sda=Pin(0), freq=100000)
 
 # Initialize the MicroPython_PCF8574T instance
-expander = GpioExpander(port=i2c, addr=0x27)
+expander = PCF8574(port=i2c, addr=0x27)
 ```
 
 ### Pin Configuration
@@ -68,7 +68,7 @@ For more examples, see the [Examples directory](example).
   same, but have a different slave address.
 - Ensure a valid I2C object for communication.
 - Macro: `PIN_MIN` and `PIN_MAX` Pin numbering from 0 to 7.
-- Macro: `INPUT` and `OUTPUT` representing pin modes.
+- Macro: `INPUT`, `INPUT_PULLUP`, `OUTPUT`, `OUTPUT_PULLUP` representing pin modes.
 - Robust exception handling implemented for potential I2C communication errors.
 
 ## Contribution

@@ -1,1 +1,1 @@
-from .src.GpioExpander import GpioExpander
+from .src.PCF8574 import PCF8574
