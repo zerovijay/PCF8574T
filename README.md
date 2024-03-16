@@ -40,24 +40,25 @@ expander = PCF8574T(port=i2c, addr=0x27)
 
 ```python
 # Set pin mode (INPUT)
-expander.pin_mode(pin_num=2, mode=expander.INPUT)
+expander.set_gpio_mode(2, PCF8574T.INPUT)
 
 # Set pin mode (OUTPUT)
-expander.pin_mode(pin_num=5, mode=expander.OUTPUT)
+expander.set_gpio_mode(5, PCF8574T.OUTPUT)
+
 ```
 
 ### Digital Write
 
 ```python
 # Write digital value
-expander.digital_write(pin_num=5, value=True)
+expander.gpio_write(5, True)
 ```
 
 ### Digital Read
 
 ```python
 # Read digital value (0 or 1) from the input pin
-value = expander.digital_read(pin_num=2)
+value = expander.gpio_read(2)
 ```
 
 For more examples, see the [Examples directory](example).

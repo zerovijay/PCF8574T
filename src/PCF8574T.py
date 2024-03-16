@@ -4,10 +4,10 @@ from micropython import const
 
 
 class PCF8574T:
-    # Constants (MACRO) representing pin modes and pin range.
+    # Constants (MACRO) representing pin modes and pin range
     DEFAULT_ADDR: int = const(0x20)
     PIN_MIN, PIN_MAX = const((0, 7))
-    INPUT, INPUT_PULLUP, OUTPUT, OUTPUT_PULLUP = const((1, 1, 0, 1))  # Pin modes.
+    INPUT, INPUT_PULLUP, OUTPUT, OUTPUT_PULLUP = const((1, 1, 0, 1))  # Pin modes
 
     def __init__(self, port: I2C, addr: int = DEFAULT_ADDR) -> None:
         """
@@ -18,25 +18,25 @@ class PCF8574T:
         :raises ValueError: If the provided address is not valid.
         :raises TypeError: If the provided port is not a valid I2C object.
         """
-        # Check if the provided address is within the valid range for PCF8574.
+        # Check if the provided address is within the valid range for PCF8574
         if not (0x20 <= addr <= 0x27 or 0x38 <= addr <= 0x3F):
-            raise ValueError(f"Invalid device address: {hex(addr)}")
+            raise ValueError(f"Invalid PCF8574x device address: {hex(addr)}")
 
-        # Ensure that the provided port is a valid I2C object.
+        # Ensure that the provided port is a valid I2C object
         if not isinstance(port, I2C):
             raise TypeError("Invalid I2C object! Please provide a valid I2C object.")
 
-        # Initialize instance variables.
-        self.__i2c_device: I2C = port  # I2C object.
-        self.__io_exp_addr: int = const(addr)  # Device address.
-        self.__io_write: int = 0x00  # Write buffer.
-        self.__io_config: int = 0x00  # Configuration buffer.
+        # Initialize instance variables
+        self.__i2c_device: I2C = port
+        self.__gpio_exp_addr: int = const(addr)
+        self.__gpio_dir: int = 0x00  # Configuration buffer
+        self.__gpio_write: int = 0x00  # Write buffer
 
-        # Check if the device is present on the I2C bus.
-        if self.__io_exp_addr not in self.__i2c_device.scan():
-            raise OSError("Device not found on the I2C bus!")
+        # Check if the device is present on the I2C bus
+        if self.__gpio_exp_addr not in self.__i2c_device.scan():
+            raise OSError("PCF8574 not found on the I2C bus!")
 
-    def __expander_read(self, fmt: str = ">B") -> int:
+    def __gpio_expander_read(self) -> int:
         """
         Read the current state of all pins from the I/O expander.
 
@@ -44,12 +44,12 @@ class PCF8574T:
         :raises RuntimeError: If there is an error during the read operation.
         """
         try:
-            data: bytes = self.__i2c_device.readfrom(self.__io_exp_addr, 1)
-            return ustruct.unpack(fmt, data)[0]  # Interpret the byte as an unsigned integer.
+            data: bytes = self.__i2c_device.readfrom(self.__gpio_exp_addr, 1)
+            return ustruct.unpack(">B", data)[0]  # Interpret the byte as an unsigned integer
         except OSError as read_error:
             raise RuntimeError(f"Expander read error: {read_error}")
 
-    def __expander_write(self, data: int) -> None:
+    def __gpio_expander_write(self, data: int) -> None:
         """
         Writes data to the I/O expander.
 
@@ -57,7 +57,7 @@ class PCF8574T:
         :raises RuntimeError: If the expander fails to write.
         """
         try:
-            self.__i2c_device.writeto(self.__io_exp_addr, bytes([data]))
+            self.__i2c_device.writeto(self.__gpio_exp_addr, bytes([data]))
         except OSError as write_error:
             raise RuntimeError(f"Expander write error: {write_error}")
 
@@ -68,7 +68,7 @@ class PCF8574T:
         :return: The status byte represents the state of all pins.
         :raises RuntimeError: If there is an error during the read operation.
         """
-        return self.__expander_read()
+        return self.__gpio_expander_read()
 
     def write_byte(self, byte: int) -> None:
         """
@@ -77,57 +77,55 @@ class PCF8574T:
         :param byte: The byte to be written to the I/O expander.
         :raises RuntimeError: If the expander fails to write.
         """
-        self.__expander_write(byte)
+        self.__gpio_expander_write(byte)
 
-    def pin_mode(self, pin_num: int, mode: int) -> None:
+    def set_gpio_mode(self, gpio: int, mode: int) -> None:
         """
         Set the mode (INPUT or OUTPUT) for a specific pin.
 
-        :param pin_num: The pin to configure.
+        :param gpio: The pin to configure.
         :param mode: The mode to set (INPUT or OUTPUT).
         :raises ValueError: If the provided pin is not within the valid range.
         """
-        if not self.PIN_MIN <= pin_num <= self.PIN_MAX:
-            raise ValueError(f"Invalid pin number: {pin_num}")
+        if not self.PIN_MIN <= gpio <= self.PIN_MAX:
+            raise ValueError(f"Invalid pin number: {gpio}")
 
         if mode not in (self.INPUT, self.INPUT_PULLUP, self.OUTPUT, self.OUTPUT_PULLUP):
-            raise ValueError(f"Invalid pin mode to configure the pin {pin_num}")
+            raise ValueError(f"Invalid pin mode to configure the pin {gpio}")
 
-        # Set or clear the corresponding bit in the io configuration buffer based on the specified mode.
-        self.__io_write = (self.__io_write & ~(1 << pin_num)) | (mode << pin_num)
-        self.__expander_write(self.__io_config)  # Update the configuration buffer.
+        # Set or clear the corresponding bit in the io configuration buffer based on the specified mode
+        self.__gpio_dir = (self.__gpio_dir & ~(1 << gpio)) | (mode << gpio)
+        self.__gpio_expander_write(self.__gpio_dir)  # Update the configuration buffer
 
-    def digital_write(self, pin_num: int, value: int) -> None:
+    def gpio_write(self, gpio: int, value: int) -> None:
         """
         Write a digital value (0 or 1) to a specific pin.
 
-        :param pin_num: The pin to write to.
+        :param gpio: The pin to write to.
         :param value: The value to write (0 or 1).
         :raises ValueError: If the provided pin is not within the valid range.
-        :raises ValueError: If the pin is not configured as an output.
         """
-        if not self.PIN_MIN <= pin_num <= self.PIN_MAX:
-            raise ValueError(f"Invalid pin number: {pin_num}")
+        if not self.PIN_MIN <= gpio <= self.PIN_MAX:
+            raise ValueError(f"Invalid pin number: {gpio}")
 
-        # Set or clear the corresponding bit in the write buffer based on the specified value.
-        self.__io_write = (self.__io_write & ~(1 << pin_num)) | (value << pin_num)
-        self.__expander_write(self.__io_write)  # Update the write buffer.
+        # Set or clear the corresponding bit in the write buffer based on the specified value
+        self.__gpio_write = (self.__gpio_write & ~(1 << gpio)) | (value << gpio)
+        self.__gpio_expander_write(self.__gpio_write)  # Update the write buffer.
 
-    def digital_read(self, pin_num: int) -> int:
+    def gpio_read(self, gpio: int) -> int:
         """
         Read the digital value (0 or 1) from a specific input pin.
 
-        :param pin_num: The pin to read from (0 to 7).
+        :param gpio: The pin to read from (0 to 7).
         :return: The digital value (0 or 1) read from the specified pin.
         :raises ValueError: If the provided pin is not within the valid range.
-        :raises ValueError: If the pin is not configured as an input.
         :raises RuntimeError: If there is an error during the read operation.
         """
-        if not self.PIN_MIN <= pin_num <= self.PIN_MAX:
-            raise ValueError(f"Invalid pin number: {pin_num}")
+        if not self.PIN_MIN <= gpio <= self.PIN_MAX:
+            raise ValueError(f"Invalid pin number: {gpio}")
 
-        status: int = self.__expander_read()  # Read the GPIO status.
-        return (status >> pin_num) & 0x01  # Extract a bit from the byte for the pin.
+        status: int = self.__gpio_expander_read()  # Read the GPIO status
+        return (status >> gpio) & 0x01  # Extract a bit from the byte for the pin
 
     def __del__(self) -> None:
         """
