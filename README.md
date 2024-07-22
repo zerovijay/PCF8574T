@@ -29,10 +29,10 @@ functionality, this library is suitable for a wide range of projects requiring a
 from machine import I2C, Pin
 from PCF8574T import PCF8574T
 
-# Customize I2C configuration, Don't forget to set frequency 100000kHz.
+# Customize I2C configuration, setting frequency to 100000 Hz.
 i2c = I2C(0, scl=Pin(1), sda=Pin(0), freq=100000)
 
-# Initialize the MicroPython_PCF8574T instance
+# Initialize the PCF8574T instance
 expander = PCF8574T(port=i2c, addr=0x27)
 ```
 
@@ -40,37 +40,33 @@ expander = PCF8574T(port=i2c, addr=0x27)
 
 ```python
 # Set pin mode (INPUT)
-expander.set_gpio_mode(2, PCF8574T.INPUT)
+expander.pin_mode(2, PCF8574T.INPUT_LOW)
 
 # Set pin mode (OUTPUT)
-expander.set_gpio_mode(5, PCF8574T.OUTPUT)
-
+expander.pin_mode(5, PCF8574T.OUTPUT_LOW)
 ```
 
 ### Digital Write
 
 ```python
 # Write digital value
-expander.gpio_write(5, True)
+expander.writeto_pin(5, True)
 ```
 
 ### Digital Read
 
 ```python
 # Read digital value (0 or 1) from the input pin
-value = expander.gpio_read(2)
+value = expander.readfrom_pin(2)
 ```
-
-For more examples, see the [Examples directory](example).
 
 ## Important Notes
 
 - The NXP [PCF8574/74A](docs/PCF8574_PCF8574A.pdf) and [Texas Instrument PCF8574](docs/pcf8574.pdf) are functionally the
-  same, but have a different slave address.
+  same, but have different slave addresses.
 - Ensure a valid I2C object for communication.
-- Macro: `PIN_MIN` and `PIN_MAX` Pin numbering from 0 to 7.
-- Macro: `INPUT`, `INPUT_PULLUP`, `OUTPUT`, `OUTPUT_PULLUP` representing pin modes.
-- Robust exception handling implemented for potential I2C communication errors.
+- Pin numbering ranges from 0 to 7.
+- Robust exception handling is implemented for potential I2C communication errors and user errors.
 
 ## Contribution
 
